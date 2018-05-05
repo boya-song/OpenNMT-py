@@ -172,7 +172,8 @@ def collect_feature_vocabs(fields, side):
 
 def build_dataset(fields, data_type, src_path, tgt_path, src_dir=None,
                   src_seq_length=0, tgt_seq_length=0,
-                  src_seq_length_trunc=0, tgt_seq_length_trunc=0,
+                  src_seq_length_trunc_front=0,
+                  src_seq_length_trunc_end=0,tgt_seq_length_trunc=0,
                   dynamic_dict=True, sample_rate=0,
                   window_size=0, window_stride=0, window=None,
                   normalize_audio=True, use_filter_pred=True):
@@ -181,7 +182,7 @@ def build_dataset(fields, data_type, src_path, tgt_path, src_dir=None,
     # number of features.
     src_examples_iter, num_src_feats = \
         _make_examples_nfeats_tpl(data_type, src_path, src_dir,
-                                  src_seq_length_trunc, sample_rate,
+                                  src_seq_length_trunc_front, src_seq_length_trunc_end,sample_rate,
                                   window_size, window_stride,
                                   window, normalize_audio)
 
@@ -327,7 +328,8 @@ def build_vocab(train_dataset_files, fields, data_type, share_vocab,
 
 
 def _make_examples_nfeats_tpl(data_type, src_path, src_dir,
-                              src_seq_length_trunc, sample_rate,
+                              src_seq_length_trunc_front, src_seq_length_trunc_end,
+                              sample_rate,
                               window_size, window_stride,
                               window, normalize_audio):
     """
@@ -338,7 +340,7 @@ def _make_examples_nfeats_tpl(data_type, src_path, src_dir,
     if data_type == 'text':
         src_examples_iter, num_src_feats = \
             TextDataset.make_text_examples_nfeats_tpl(
-                src_path, src_seq_length_trunc, "src")
+                src_path, src_seq_length_trunc_front, src_seq_length_trunc_end,"src")
 
     elif data_type == 'img':
         src_examples_iter, num_src_feats = \

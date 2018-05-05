@@ -129,11 +129,12 @@ class TextDataset(ONMTDatasetBase):
         return scores
 
     @staticmethod
-    def make_text_examples_nfeats_tpl(path, truncate, side):
+    def make_text_examples_nfeats_tpl(path, truncate_front, truncate_end, side):
         """
         Args:
             path (str): location of a src or tgt file.
-            truncate (int): maximum sequence length (0 for unlimited).
+            truncate_front (int): maximum sequence length (0 for unlimited) at the front.
+            truncate_end (int): maximum sequence length (0 for unlimited) at the end.
             side (str): "src" or "tgt".
 
         Returns:
@@ -147,7 +148,7 @@ class TextDataset(ONMTDatasetBase):
         # All examples have same number of features, so we peek first one
         # to get the num_feats.
         examples_nfeats_iter = \
-            TextDataset.read_text_file(path, truncate, side)
+            TextDataset.read_text_file(path, truncate_front, truncate_end,side)
 
         first_ex = next(examples_nfeats_iter)
         num_feats = first_ex[1]
@@ -159,7 +160,7 @@ class TextDataset(ONMTDatasetBase):
         return (examples_iter, num_feats)
 
     @staticmethod
-    def read_text_file(path, truncate, side):
+    def read_text_file(path, truncate_front, truncate_end, side):
         """
         Args:
             path (str): location of a src or tgt file.
@@ -172,8 +173,7 @@ class TextDataset(ONMTDatasetBase):
         with codecs.open(path, "r", "utf-8") as corpus_file:
             for i, line in enumerate(corpus_file):
                 line = line.strip().split()
-                if truncate:
-                    line = line[:truncate]
+                line = TextDataset.truncate_lines(line, truncate_front, truncate_end)
 
                 words, feats, n_feats = \
                     TextDataset.extract_text_features(line)
@@ -286,6 +286,19 @@ class TextDataset(ONMTDatasetBase):
                 example["alignment"] = mask
             yield example
 
+    @staticmethod
+    def truncate_lines(line, line_truncate_front, line_truncate_end):
+        if line_truncate_front:
+            truncated_line = line[:line_truncate_front]
+            if line_truncate_end:
+                if len(line) > line_truncate_front + line_truncate_end:
+                    truncated_line += line[-line_truncate_end:]
+                elif len(line) > line_truncate_front:
+                    truncated_line = line
+        else:
+            truncated_line = line
+        return truncated_line
+
 
 class ShardedTextCorpusIterator(object):
     """
@@ -296,7 +309,7 @@ class ShardedTextCorpusIterator(object):
     shards of size `shard_size`. Then, for each shard, it processes
     into (example_dict, n_features) tuples when iterates.
     """
-    def __init__(self, corpus_path, line_truncate, side, shard_size,
+    def __init__(self, corpus_path, line_truncate_front, line_truncate_end, side, shard_size,
                  assoc_iter=None):
         """
         Args:
@@ -316,7 +329,8 @@ class ShardedTextCorpusIterator(object):
             sys.stderr.write("Failed to open corpus file: %s" % corpus_path)
             sys.exit(1)
 
-        self.line_truncate = line_truncate
+        self.line_truncate_front = line_truncate_front
+        self.line_truncate_end = line_truncate_end
         self.side = side
         self.shard_size = shard_size
         self.assoc_iter = assoc_iter
@@ -382,18 +396,17 @@ class ShardedTextCorpusIterator(object):
         saved_pos = self.corpus.tell()
 
         line = self.corpus.readline().split()
-        if self.line_truncate:
-            line = line[:self.line_truncate]
+        line = TextDataset.truncate_lines(line, self.line_truncate_front, self.line_truncate_end)
         _, _, self.n_feats = TextDataset.extract_text_features(line)
 
         self.corpus.seek(saved_pos)
 
         return self.n_feats
 
+
     def _example_dict_iter(self, line, index):
         line = line.split()
-        if self.line_truncate:
-            line = line[:self.line_truncate]
+        line = TextDataset.truncate_lines(line, self.line_truncate_front, self.line_truncate_end)
         words, feats, n_feats = TextDataset.extract_text_features(line)
         example_dict = {self.side: words, "indices": index}
         if feats:

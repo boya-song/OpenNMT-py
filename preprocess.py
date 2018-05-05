@@ -81,7 +81,8 @@ def build_save_text_dataset_in_shards(src_corpus, tgt_corpus, fields,
 
     ret_list = []
     src_iter = onmt.io.ShardedTextCorpusIterator(
-        src_corpus, opt.src_seq_length_trunc,
+        src_corpus, opt.src_seq_length_trunc_front,
+        opt.src_seq_length_trunc_end,
         "src", opt.max_shard_size)
     tgt_iter = onmt.io.ShardedTextCorpusIterator(
         tgt_corpus, opt.tgt_seq_length_trunc,
@@ -136,7 +137,8 @@ def build_save_dataset(corpus_type, fields, opt):
         src_dir=opt.src_dir,
         src_seq_length=opt.src_seq_length,
         tgt_seq_length=opt.tgt_seq_length,
-        src_seq_length_trunc=opt.src_seq_length_trunc,
+        src_seq_length_trunc_front=opt.src_seq_length_trunc_front,
+        src_seq_length_trunc_end=opt.src_seq_length_trunc_end,
         tgt_seq_length_trunc=opt.tgt_seq_length_trunc,
         dynamic_dict=opt.dynamic_dict,
         sample_rate=opt.sample_rate,

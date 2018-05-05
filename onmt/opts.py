@@ -177,8 +177,10 @@ def preprocess_opts(parser):
     group = parser.add_argument_group('Pruning')
     group.add_argument('-src_seq_length', type=int, default=50,
                        help="Maximum source sequence length")
-    group.add_argument('-src_seq_length_trunc', type=int, default=0,
-                       help="Truncate source sequence length.")
+    group.add_argument('-src_seq_length_trunc_front', type=int, default=0,
+                       help="Truncate source sequence length from front.")
+    group.add_argument('-src_seq_length_trunc_end', type=int, default=0,
+                       help="Truncate source sequence length from end.")
     group.add_argument('-tgt_seq_length', type=int, default=50,
                        help="Maximum target sequence length to keep.")
     group.add_argument('-tgt_seq_length_trunc', type=int, default=0,
