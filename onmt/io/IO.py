@@ -189,7 +189,7 @@ def build_dataset(fields, data_type, src_path, tgt_path, src_dir=None,
     # For all data types, the tgt side corpus is in form of text.
     tgt_examples_iter, num_tgt_feats = \
         TextDataset.make_text_examples_nfeats_tpl(
-            tgt_path, tgt_seq_length_trunc, "tgt")
+            tgt_path, "tgt", tgt_seq_length_trunc)
 
     if data_type == 'text':
         dataset = TextDataset(fields, src_examples_iter, tgt_examples_iter,
@@ -340,7 +340,7 @@ def _make_examples_nfeats_tpl(data_type, src_path, src_dir,
     if data_type == 'text':
         src_examples_iter, num_src_feats = \
             TextDataset.make_text_examples_nfeats_tpl(
-                src_path, src_seq_length_trunc_front, src_seq_length_trunc_end,"src")
+                src_path, "src", src_seq_length_trunc_front, src_seq_length_trunc_end)
 
     elif data_type == 'img':
         src_examples_iter, num_src_feats = \

@@ -129,7 +129,7 @@ class TextDataset(ONMTDatasetBase):
         return scores
 
     @staticmethod
-    def make_text_examples_nfeats_tpl(path, truncate_front, truncate_end, side):
+    def make_text_examples_nfeats_tpl(path, side, truncate_front, truncate_end=0):
         """
         Args:
             path (str): location of a src or tgt file.
