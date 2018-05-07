@@ -85,7 +85,7 @@ def build_save_text_dataset_in_shards(src_corpus, tgt_corpus, fields,
         opt.src_seq_length_trunc_end,
         "src", opt.max_shard_size)
     tgt_iter = onmt.io.ShardedTextCorpusIterator(
-        tgt_corpus, opt.tgt_seq_length_trunc,
+        tgt_corpus, opt.tgt_seq_length_trunc, 0,
         "tgt", opt.max_shard_size,
         assoc_iter=src_iter)
 
